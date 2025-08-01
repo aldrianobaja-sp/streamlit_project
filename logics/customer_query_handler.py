@@ -133,10 +133,74 @@ def process_user_message(user_input):
 
     # Process 2: Get the Course Details
     course_details = get_course_details(category_n_course_name)
+    
+    # Start the crew's task execution
+    result = crew.kickoff(inputs={"topic": category_n_course_name})
 
     # Process 3: Generate Response based on Course Details
-    reply = generate_response_based_on_course_details(user_input, course_details)
+    # reply = generate_response_based_on_course_details(user_input, course_details)
+    reply = result.raw
 
     # Return the reply
 
     return reply, course_details
+
+from crewai import Agent, Task, Crew
+agent_planner = Agent(
+    role="Content Planner",
+
+    goal="Plan engaging and factually accurate content on {topic}",
+
+    backstory="""You're working on planning a blog article about the topic: {topic}."
+    You collect information that helps the audience learn something about the topic and make informed decisions."
+    Your work is the basis for the Content Writer to write an article on this topic.""",
+
+    allow_delegation=False, # we will explain more about this later
+
+	verbose=True, # to allow the agent to print out the steps it is taking
+)
+
+
+agent_writer = writer = Agent(
+    role="Content Writer",
+
+    goal="Write insightful and factually accurate opinion piece about the topic: {topic}",
+
+    backstory="""You're working on a writing a new opinion piece about the topic: {topic}.
+    You base your writing on the work of the Content Planner, who provides an outline and relevant context about the topic.
+    You follow the main objectives and direction of the outline as provide by the Content Planner.""",
+
+    allow_delegation=False, # we will explain more about this later
+
+    verbose=True, # to allow the agent to print out the steps it is taking
+)
+
+task_plan = Task(
+    description="""\
+    1. Prioritize the latest trends, key players, and noteworthy news on {topic}.
+    2. Identify the target audience, considering "their interests and pain points.
+    3. Develop a detailed content outline, including introduction, key points, and a call to action.""",
+
+    expected_output="""\
+    A comprehensive content plan document with an outline, audience analysis, SEO keywords, and resources.""",
+
+    agent=agent_planner,
+)
+
+task_write = Task(
+    description="""\
+    1. Use the content plan to craft a compelling blog post on {topic} based on the target audience's interests.
+    2. Sections/Subtitles are properly named in an engaging manner.
+    3. Ensure the post is structured with an engaging introduction, insightful body, and a summarizing conclusion.
+    4. Proofread for grammatical errors and alignment the common style used in tech blogs.""",
+
+    expected_output="""
+    A well-written blog post "in markdown format, ready for publication, each section should have 2 or 3 paragraphs.""",
+
+    agent=agent_writer,
+)
+crew = Crew(
+    agents=[agent_planner, agent_writer],
+    tasks=[task_plan, task_write],
+    verbose=False,
+)
