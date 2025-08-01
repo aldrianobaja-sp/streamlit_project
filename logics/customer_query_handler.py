@@ -145,6 +145,9 @@ def process_user_message(user_input):
 
     return reply, course_details
 
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 from crewai import Agent, Task, Crew
 agent_planner = Agent(
     role="Content Planner",

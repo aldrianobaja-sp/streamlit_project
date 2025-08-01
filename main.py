@@ -3,10 +3,6 @@ import streamlit as st
 import pandas as pd
 from helper_functions.utility import check_password
 
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-
 # from helper_functions import llm
 from logics.customer_query_handler import process_user_message
 
