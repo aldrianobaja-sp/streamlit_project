@@ -76,7 +76,6 @@ typing-inspect
 typing_extensions
 tzdata
 urllib3
-watchdog
 yarl
 crewai
 pysqlite3-binary
