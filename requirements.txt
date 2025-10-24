@@ -47,7 +47,6 @@ orjson
 packaging
 pandas
 pillow
-protobuf
 pyarrow
 pydantic
 pydantic-settings
